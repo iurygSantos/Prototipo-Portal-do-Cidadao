@@ -1,14 +1,33 @@
+import { createContext, useState, useEffect, useContext } from "react";
 
+// cria o contexto
+const ThemeContext = createContext();
 
-import { createContext, useState } from "react";
+// provider que envolve a aplicação
+export function ThemeProvider({ children }) {
 
-export const ThemeContext = createContext();
-
-export const ThemeProvider = ({ children }) => {
-
+    // estado do tema
     const [theme, setTheme] = useState("light");
 
-    /**ALTERA TEMA */
+    // carrega tema salvo
+    useEffect(() => {
+        const savedTheme = localStorage.getItem("theme");
+
+        if (savedTheme) {
+            setTheme(savedTheme);
+        }
+    }, []);
+
+    // salva sempre que mudar
+    useEffect(() => {
+        localStorage.setItem("theme", theme);
+
+        // aplica no body (classe CSS)
+        document.body.className = theme;
+
+    }, [theme]);
+
+    // alterna tema
     const toggleTheme = () => {
         setTheme(prev => prev === "light" ? "dark" : "light");
     };
@@ -18,4 +37,9 @@ export const ThemeProvider = ({ children }) => {
             {children}
         </ThemeContext.Provider>
     );
-};
+}
+
+// hook customizado
+export function useTheme() {
+    return useContext(ThemeContext);
+}
